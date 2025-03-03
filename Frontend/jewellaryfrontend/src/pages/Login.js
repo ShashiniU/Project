@@ -2,9 +2,10 @@
 
 import { useState } from "react"
 import { Link, useNavigate } from "react-router-dom"
+import { authService } from "../services/api"
 import "./AuthPages.css"
 
-const Login = ({ onLogin }) => {
+const Login = () => {
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -13,6 +14,7 @@ const Login = ({ onLogin }) => {
 
   const [errors, setErrors] = useState({})
   const [isLoading, setIsLoading] = useState(false)
+  const [serverError, setServerError] = useState("")
 
   const navigate = useNavigate()
 
@@ -29,6 +31,11 @@ const Login = ({ onLogin }) => {
         ...errors,
         [name]: "",
       })
+    }
+    
+    // Clear server error when user changes input
+    if (serverError) {
+      setServerError("")
     }
   }
 
@@ -49,18 +56,30 @@ const Login = ({ onLogin }) => {
     return Object.keys(newErrors).length === 0
   }
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
 
     if (validateForm()) {
       setIsLoading(true)
-
-      // Simulate API call
-      setTimeout(() => {
-        setIsLoading(false)
-        onLogin()
+      setServerError("")
+      
+      try {
+        await authService.login(formData.email, formData.password)
         navigate("/dashboard")
-      }, 1500)
+      } catch (error) {
+        if (error.response) {
+          // Server responded with an error
+          setServerError(error.response.data.message || "Login failed. Please try again.")
+        } else if (error.request) {
+          // No response from server
+          setServerError("No response from server. Please check your connection.")
+        } else {
+          // Other error
+          setServerError("Login failed. Please try again.")
+        }
+      } finally {
+        setIsLoading(false)
+      }
     }
   }
 
@@ -71,6 +90,10 @@ const Login = ({ onLogin }) => {
           <h1>Welcome Back</h1>
           <p>Sign in to access your account</p>
         </div>
+
+        {serverError && (
+          <div className="server-error-message">{serverError}</div>
+        )}
 
         <form className="auth-form" onSubmit={handleSubmit}>
           <div className="form-group">
@@ -152,4 +175,3 @@ const Login = ({ onLogin }) => {
 }
 
 export default Login
-
