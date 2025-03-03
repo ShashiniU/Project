@@ -1,0 +1,162 @@
+.listings-page {
+  padding-bottom: 60px;
+}
+
+.listings-header {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.listings-header h1 {
+  font-size: 2.5rem;
+  color: var(--primary-color);
+  margin-bottom: 10px;
+}
+
+.listings-header p {
+  color: #666;
+  font-size: 1.1rem;
+}
+
+.listings-container {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  gap: 30px;
+}
+
+/* Filters Sidebar */
+.filters-sidebar {
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: var(--box-shadow);
+  padding: 20px;
+  height: fit-content;
+}
+
+.filter-section {
+  margin-bottom: 25px;
+}
+
+.filter-section h3 {
+  font-size: 1rem;
+  margin-bottom: 10px;
+  color: var(--primary-color);
+}
+
+.search-input,
+.filter-select,
+.range-input {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 0.9rem;
+}
+
+.range-inputs {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.range-inputs span {
+  color: #666;
+}
+
+.range-input {
+  flex: 1;
+}
+
+.reset-btn {
+  width: 100%;
+}
+
+/* Listings Content */
+.listings-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid #eee;
+}
+
+.results-count {
+  font-weight: 600;
+  color: #666;
+}
+
+.sort-options {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.sort-select {
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+/* Gemstone Grid */
+.gemstone-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 30px;
+}
+
+.gemstone-specs {
+  display: flex;
+  gap: 8px;
+  color: #666;
+  font-size: 0.85rem;
+  margin-bottom: 10px;
+}
+
+.no-results {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 40px;
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: var(--box-shadow);
+}
+
+.no-results h3 {
+  color: var(--primary-color);
+  margin-bottom: 10px;
+}
+
+.no-results p {
+  color: #666;
+}
+
+/* Responsive */
+@media (max-width: 992px) {
+  .listings-container {
+    grid-template-columns: 1fr;
+  }
+
+  .filters-sidebar {
+    order: 1;
+  }
+
+  .listings-content {
+    order: 2;
+  }
+}
+
+@media (max-width: 768px) {
+  .gemstone-grid {
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  }
+}
+
+@media (max-width: 480px) {
+  .listings-toolbar {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 15px;
+  }
+}
+
