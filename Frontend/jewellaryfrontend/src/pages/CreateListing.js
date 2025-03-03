@@ -113,23 +113,62 @@ const CreateListing = ({ isLoggedIn }) => {
     return Object.keys(newErrors).length === 0
   }
 
-  const handleSubmit = async (e) => {
-    e.preventDefault()
+  
+  
+const handleSubmit = async (e) => {
+  e.preventDefault();
 
-    if (validateForm()) {
-      setIsLoading(true)
+  if (validateForm()) {
+    setIsLoading(true);
 
-      try {
-        // Simulate API call
-        await new Promise((resolve) => setTimeout(resolve, 2000))
-        navigate("/dashboard")
-      } catch (error) {
-        console.error("Error creating listing:", error)
-      } finally {
-        setIsLoading(false)
+    try {
+      // Create FormData object to handle file uploads
+      const formDataObj = new FormData();
+      
+      // Add all text fields to FormData
+      Object.keys(formData).forEach(key => {
+        if (key !== 'images') {
+          formDataObj.append(key, formData[key]);
+        }
+      });
+      
+      // Add the user ID from local storage
+      const savedUser = JSON.parse(localStorage.getItem("user"));
+      formDataObj.append('userId', savedUser.id);
+      
+      // Add all image files to FormData
+      formData.images.forEach(image => {
+        formDataObj.append('images', image);
+      });
+      
+      // Make API request to create listing
+      const response = await fetch('http://localhost:5000/api/listing/listings', {
+        method: 'POST',
+        body: formDataObj,
+        // Don't set Content-Type header - FormData sets it automatically with boundary
+      });
+      
+      const result = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(result.message || 'Failed to create listing');
       }
+      
+      // Navigate to dashboard on success
+      navigate("/dashboard");
+    } catch (error) {
+      console.error("Error creating listing:", error);
+      
+      // You might want to show an error message to the user
+      setErrors({
+        ...errors,
+        form: error.message || 'An error occurred while creating the listing'
+      });
+    } finally {
+      setIsLoading(false);
     }
   }
+};
 
   return (
     <div className="create-listing-page">

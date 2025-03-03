@@ -69,6 +69,7 @@ const mockSavedItems = [
 const Dashboard = ({ isLoggedIn }) => {
   const navigate = useNavigate()
   const [activeTab, setActiveTab] = useState("overview")
+  const savedUser = JSON.parse(localStorage.getItem("user"));
 
   if (!isLoggedIn) {
     navigate("/login")
@@ -91,7 +92,7 @@ const Dashboard = ({ isLoggedIn }) => {
               <img src="/placeholder.svg?height=100&width=100" alt="User Profile" />
             </div>
             <div className="profile-info">
-              <h3>John Doe</h3>
+              <h3>{savedUser.firstName+' '+savedUser.lastName}</h3>
               <p>Member since Jan 2024</p>
             </div>
           </div>
@@ -257,16 +258,16 @@ const Dashboard = ({ isLoggedIn }) => {
                   <div className="form-row">
                     <div className="form-group">
                       <label>First Name</label>
-                      <input type="text" className="form-control" defaultValue="John" />
+                      <input type="text" className="form-control" defaultValue={savedUser.firstName} />
                     </div>
                     <div className="form-group">
                       <label>Last Name</label>
-                      <input type="text" className="form-control" defaultValue="Doe" />
+                      <input type="text" className="form-control" defaultValue={savedUser.lastName} />
                     </div>
                   </div>
                   <div className="form-group">
                     <label>Email</label>
-                    <input type="email" className="form-control" defaultValue="john@example.com" />
+                    <input type="email" className="form-control" defaultValue={savedUser.email} />
                   </div>
                   <div className="form-group">
                     <label>Phone</label>

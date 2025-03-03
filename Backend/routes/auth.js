@@ -3,6 +3,8 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const { route } = require("./user");
 require("dotenv").config();
+const db = require("../db"); // Database connection file
+
 
 const router = express.Router();
 // Utility function to validate email format
@@ -28,7 +30,7 @@ router.post('/register', async (req, res) => {
       }
       
       // Check if email already exists
-      const [existingUsers] = await pool.query('SELECT id FROM users WHERE email = ?', [email]);
+      const [existingUsers] = await db.promise().query('SELECT id FROM users WHERE email = ?', [email]);
       
       if (existingUsers.length > 0) {
         return res.status(409).json({ message: 'Email already in use' });
@@ -39,7 +41,7 @@ router.post('/register', async (req, res) => {
       const hashedPassword = await bcrypt.hash(password, saltRounds);
       
       // Insert user into database
-      const [result] = await pool.query(
+      const [result] = await db.promise().query(
         'INSERT INTO users (first_name, last_name, email, password) VALUES (?, ?, ?, ?)',
         [firstName, lastName, email, hashedPassword]
       );
@@ -80,7 +82,7 @@ router.post('/login', async (req, res) => {
       }
       
       // Get user from database
-      const [users] = await pool.query('SELECT * FROM users WHERE email = ?', [email]);
+      const [users] = await db.promise().query('SELECT * FROM users WHERE email = ?', [email]);
       
       if (users.length === 0) {
         return res.status(401).json({ message: 'Invalid credentials' });
