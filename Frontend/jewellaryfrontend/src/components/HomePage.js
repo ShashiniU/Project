@@ -1,10 +1,17 @@
-import { Link } from "react-router-dom"
+import { Link , useNavigate } from "react-router-dom"
 // import FeaturedGemstones from "../components/FeaturedGemstones"
 import "./HomePage.css"
-import placeholder from "../assets/images/placeholder.svg";
+import placeholder from "../assets/images/placeholder.jpg";
 
 
-const HomePage = () => {
+const HomePage = ({isLoggedIn}) => {
+  const navigate = useNavigate();
+  const handleBuyNowClick = (event) => {
+    if (!isLoggedIn) {
+      event.preventDefault(); // Prevent navigation
+     navigate("/register");
+    }
+  };
   return (
     <div className="home-page">
       {/* Hero Section */}
@@ -18,10 +25,10 @@ const HomePage = () => {
           <h1 className="hero-title">Discover Rare & Authentic Gemstones</h1>
           <p className="hero-subtitle">The world's premier marketplace for verified precious stones</p>
           <div className="hero-buttons">
-            <Link to="/listings" className="btn btn-primary">
+            <Link to="/listings" className="browse-gemstones">
               Browse Gemstones
             </Link>
-            <Link to="/register" className="btn btn-secondary">
+            <Link to="/create-listing" className="sell-gems">
               Sell Your Gems
             </Link>
           </div>
@@ -65,7 +72,7 @@ const HomePage = () => {
           <h2 className="section-title">Featured Gemstones</h2>
           {/* <FeaturedGemstones /> */}
           <div className="view-all">
-            <Link to="/listings" className="btn btn-secondary">
+            <Link to="/listings" className="get-started ">
               View All Gemstones
             </Link>
           </div>
@@ -152,7 +159,7 @@ const HomePage = () => {
           <div className="cta-content">
             <h2 className="cta-title">Ready to Discover Rare Gemstones?</h2>
             <p className="cta-text">Join thousands of gem enthusiasts and professionals on GemMarket</p>
-            <Link to="/register" className="btn btn-accent">
+            <Link to="/create-listing" className="get-started"  onClick={handleBuyNowClick}>
               Get Started Now
             </Link>
           </div>

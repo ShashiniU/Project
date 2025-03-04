@@ -1,71 +1,75 @@
 "use client"
 
 import { useState } from "react"
-import { useParams, Link } from "react-router-dom"
+import { useParams, Link  } from "react-router-dom"
 import { FaHeart , FaSlideshare, FaUserShield, FaAward, FaCheck } from "react-icons/fa"
 import "./GemstoneDetail.css"
+import "./ListingsPage.css"
 
-// Mock data for gemstone details
-const gemstoneData = {
-  1: {
-    id: 1,
-    name: "Natural Blue Sapphire",
-    description:
-      "Stunning 3.5 carat natural blue sapphire with excellent clarity and color. This exceptional gemstone features a vivid blue hue that is characteristic of the finest sapphires from Sri Lanka. The stone has been expertly cut to maximize its brilliance and color saturation.",
-    price: 4500,
-    images: [
-      "/placeholder.svg?height=600&width=600",
-      "/placeholder.svg?height=600&width=600",
-      "/placeholder.svg?height=600&width=600",
-      "/placeholder.svg?height=600&width=600",
-    ],
-    certification: "GIA Certified",
-    rating: 4.9,
-    type: "Sapphire",
-    carat: 3.5,
-    origin: "Sri Lanka",
-    cut: "Oval",
-    dimensions: "10mm x 8mm x 5mm",
-    color: "Vivid Blue",
-    clarity: "Eye Clean",
-    treatment: "Heat Treated",
-    seller: {
-      name: "Premium Gems",
-      rating: 4.8,
-      sales: 156,
-      joined: "Jan 2019",
-    },
-    reviews: [
-      {
-        user: "GemCollector",
-        rating: 5,
-        date: "2023-05-15",
-        comment:
-          "Absolutely stunning sapphire! The color is even more vibrant in person. Very satisfied with this purchase.",
-      },
-      {
-        user: "JewelryDesigner22",
-        rating: 5,
-        date: "2023-04-28",
-        comment:
-          "Perfect stone for a custom engagement ring I was designing. The cut is excellent and the color is magnificent.",
-      },
-      {
-        user: "StoneLover",
-        rating: 4,
-        date: "2023-03-10",
-        comment: "Beautiful sapphire with great color. Shipping was fast and the certification was as described.",
-      },
-    ],
-  },
-  // Additional gemstones would be defined here
-}
 
-const GemstoneDetail = () => {
+// // Mock data for gemstone details
+// const gemstoneData = {
+//   1: {
+//     id: 1,
+//     name: "Natural Blue Sapphire",
+//     description:
+//       "Stunning 3.5 carat natural blue sapphire with excellent clarity and color. This exceptional gemstone features a vivid blue hue that is characteristic of the finest sapphires from Sri Lanka. The stone has been expertly cut to maximize its brilliance and color saturation.",
+//     price: 4500,
+//     images: [
+//       "/placeholder.svg?height=600&width=600",
+//       "/placeholder.svg?height=600&width=600",
+//       "/placeholder.svg?height=600&width=600",
+//       "/placeholder.svg?height=600&width=600",
+//     ],
+//     certification: "GIA Certified",
+//     rating: 4.9,
+//     type: "Sapphire",
+//     carat: 3.5,
+//     origin: "Sri Lanka",
+//     cut: "Oval",
+//     dimensions: "10mm x 8mm x 5mm",
+//     color: "Vivid Blue",
+//     clarity: "Eye Clean",
+//     treatment: "Heat Treated",
+//     seller: {
+//       name: "Premium Gems",
+//       rating: 4.8,
+//       sales: 156,
+//       joined: "Jan 2019",
+//     },
+//     reviews: [
+//       {
+//         user: "GemCollector",
+//         rating: 5,
+//         date: "2023-05-15",
+//         comment:
+//           "Absolutely stunning sapphire! The color is even more vibrant in person. Very satisfied with this purchase.",
+//       },
+//       {
+//         user: "JewelryDesigner22",
+//         rating: 5,
+//         date: "2023-04-28",
+//         comment:
+//           "Perfect stone for a custom engagement ring I was designing. The cut is excellent and the color is magnificent.",
+//       },
+//       {
+//         user: "StoneLover",
+//         rating: 4,
+//         date: "2023-03-10",
+//         comment: "Beautiful sapphire with great color. Shipping was fast and the certification was as described.",
+//       },
+//     ],
+//   },
+//   // Additional gemstones would be defined here
+// }
+
+const GemstoneDetail = ({isLoggedIn }) => {
+  // const navigate = useNavigate();
   const { id } = useParams()
-  const gemstone = gemstoneData[id]
+  const gemstoneData = JSON.parse(localStorage.getItem("Items")) || {}
+  const gemstone = gemstoneData.find(gem => gem.id === Number(id)) || {}
 
-  const [mainImage, setMainImage] = useState(0)
+
   const [quantity, setQuantity] = useState(1)
 
   if (!gemstone) {
@@ -73,31 +77,39 @@ const GemstoneDetail = () => {
       <div className="not-found">
         <h2>Gemstone Not Found</h2>
         <p>The gemstone you're looking for doesn't exist or has been removed.</p>
-        <Link to="/listings" className="btn btn-primary">
+        <Link to="/listings" className="get-started">
           Back to Listings
         </Link>
       </div>
     )
   }
+  const handleBuyNowClick = (event) => {
+    if (!isLoggedIn) {
+      event.preventDefault(); // Prevent navigation
+      alert("You need to log in to proceed with the purchase.");
+    }
+  };
 
   return (
     <div className="gemstone-detail">
       <div className="detail-container">
         <div className="detail-images">
           <div className="main-image">
-            <img src={gemstone.images[mainImage] || "/placeholder.svg"} alt={gemstone.name} />
+            <img src={`http://localhost:5000${gemstone.primary_image}` || "/placeholder.svg"} alt={gemstone.name} />
             <div className="certification-badge">{gemstone.certification}</div>
           </div>
           <div className="thumbnail-images">
-            {gemstone.images.map((image, index) => (
+          <img src={`http://localhost:5000${gemstone.primary_image}` || "/placeholder.svg"} alt={`${gemstone.name}`} />
+            {/* {gemstone.primary_image.map((image, index) => (
               <div
                 key={index}
-                className={`thumbnail ${mainImage === index ? "active" : ""}`}
+                className={`thumbnail ${gemstone.primary_image === index ? "active" : ""}`}
                 onClick={() => setMainImage(index)}
               >
-                <img src={image || "/placeholder.svg"} alt={`${gemstone.name} view ${index + 1}`} />
+               
               </div>
-            ))}
+              
+            ))} */}
           </div>
         </div>
 
@@ -105,11 +117,11 @@ const GemstoneDetail = () => {
           <h1 className="gemstone-title">{gemstone.name}</h1>
 
           <div className="gemstone-meta">
-            <div className="rating">★ {gemstone.rating}</div>
+            {/* <div className="rating">★ {gemstone.rating}</div> */}
             <div className="separator">|</div>
-            <div className="reviews-count">{gemstone.reviews.length} Reviews</div>
+            {/* <div className="reviews-count">{gemstone.reviews.length} Reviews</div> */}
             <div className="separator">|</div>
-            <div className="seller">Sold by: {gemstone.seller.name}</div>
+            {/* <div className="seller">Sold by: {gemstone.seller.name}</div> */}
           </div>
 
           <div className="gemstone-price">${gemstone.price.toLocaleString()}</div>
@@ -135,10 +147,7 @@ const GemstoneDetail = () => {
               <span className="spec-label">Cut:</span>
               <span className="spec-value">{gemstone.cut}</span>
             </div>
-            <div className="spec-item">
-              <span className="spec-label">Dimensions:</span>
-              <span className="spec-value">{gemstone.dimensions}</span>
-            </div>
+            
             <div className="spec-item">
               <span className="spec-label">Color:</span>
               <span className="spec-value">{gemstone.color}</span>
@@ -178,9 +187,13 @@ const GemstoneDetail = () => {
             </div>
 
             <div className="action-buttons">
-              <Link to={`/checkout/${gemstone.id}`} className="btn btn-primary btn-lg">
-                Buy Now
-              </Link>
+            <Link 
+      to={`/checkout/${gemstone.id}`} 
+      className="buy-now" 
+      onClick={handleBuyNowClick}
+    >
+      Buy Now
+    </Link>
               <button className="btn btn-secondary btn-lg">Add to Cart</button>
               <button className="btn btn-outline btn-icon">
                 <FaHeart  />
@@ -222,7 +235,7 @@ const GemstoneDetail = () => {
           <div className="tabs-header">
             <button className="tab-btn active">Description</button>
             <button className="tab-btn">Specifications</button>
-            <button className="tab-btn">Reviews ({gemstone.reviews.length})</button>
+            {/* <button className="tab-btn">Reviews ({gemstone.reviews.length})</button> */}
             <button className="tab-btn">Seller Info</button>
           </div>
 

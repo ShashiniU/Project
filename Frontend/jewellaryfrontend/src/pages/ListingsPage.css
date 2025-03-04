@@ -131,6 +131,37 @@
   color: #666;
 }
 
+.view-details {
+  background-color: #4A148C; /* Deep Purple */
+  color: white;
+  padding: 10px 15px;
+  text-decoration: none;
+  border-radius: 5px;
+  display: inline-block;
+  font-weight: bold;
+  transition: background-color 0.3s ease-in-out;
+}
+
+.view-details:hover {
+  background-color: #6A1B9A; /* Lighter Purple */
+}
+
+.buy-now {
+  background-color: #D32F2F; /* Red */
+  color: white;
+  padding: 10px 15px;
+  text-decoration: none;
+  border-radius: 5px;
+  display: inline-block;
+  font-weight: bold;
+  transition: background-color 0.3s ease-in-out;
+}
+
+.buy-now:hover {
+  background-color: #E53935; /* Lighter Red */
+}
+
+
 /* Responsive */
 @media (max-width: 992px) {
   .listings-container {

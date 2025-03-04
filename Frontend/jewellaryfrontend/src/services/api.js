@@ -45,12 +45,24 @@ export const authService = {
     }
     return response.data;
   },
-  
+   
   logout: () => {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
   },
-  
+  // Get listings for the current user
+  mylisting: async (userid) =>{
+    const response = await api.get('listing/listings', {userid});    
+    return response.data;   
+   
+  },
+   // Get listings all
+   alllisting: async () =>{
+    const response = await api.get('listing/listings');    
+    return response.data;   
+   
+  },
+
   getCurrentUser: () => {
     const userStr = localStorage.getItem('user');
     if (userStr) {
@@ -68,6 +80,8 @@ export const authService = {
   getProfile: async () => {
     return api.get('/user/profile');
   }
+
+  
 };
 
 export default api;

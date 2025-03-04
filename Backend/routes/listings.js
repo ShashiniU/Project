@@ -6,9 +6,7 @@ const db = require("../db"); // Database connection file
 const router = express.Router();
 
 router.post('/listings', upload.array('images', 5), async (req, res) => {
-    const conn = await db.promise().getConnection();
     try {
-      await conn.beginTransaction();
       
       const {
         name,
@@ -34,32 +32,32 @@ router.post('/listings', upload.array('images', 5), async (req, res) => {
           message: 'Missing required fields' 
         });
       }
-  
-      // Insert gemstone listing
-      const [result] = await conn.execute(
-        `INSERT INTO gemstone_listings 
-        (user_id, name, type, carat, color, clarity, cut, origin, treatment, 
-         certification, certification_number, price, description, status, created_at) 
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())`,
-        [
-          userId,
-          name,
-          type,
-          parseFloat(carat),
-          color,
-          clarity,
-          cut,
-          origin,
-          treatment || 'None',
-          certification,
-          certificationNumber,
-          parseFloat(price),
-          description,
-          'Active'
-        ]
-      );
-  
-      const listingId = result.insertId;
+      const sql = `
+      INSERT INTO gemstone_listings 
+      (user_id, name, type, carat, color, clarity, cut, origin, treatment, certification, certification_number, price, description, status, created_at) 
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())`;
+    
+    const [result] = await db.promise().query(sql, [
+      userId,
+      name,
+      type,
+      parseFloat(carat),
+      color,
+      clarity,
+      cut,
+      origin,
+      treatment || 'None',
+      certification,
+      certificationNumber,
+      parseFloat(price),
+      description,
+      'Active'
+    ]);
+    
+    const listingId = result.insertId; // Ensure result is destructured properly
+    
+    console.log("Inserted Listing ID:", listingId);
+    
   
       // Process uploaded images
       if (req.files && req.files.length > 0) {
@@ -72,16 +70,17 @@ router.post('/listings', upload.array('images', 5), async (req, res) => {
           ];
         });
   
-        // Insert images
-        await conn.query(
-          `INSERT INTO gemstone_images 
-          (gemstone_id, image_url, is_primary, created_at) 
-          VALUES ?`,
-          [imageValues]
-        );
+      // Insert images
+const sql = `
+INSERT INTO gemstone_images 
+(gemstone_id, image_url, is_primary, created_at) 
+VALUES ?`;
+
+await db.promise().query(sql, [imageValues]);
+
       }
   
-      await conn.commit();
+     
       
       res.status(201).json({
         success: true,
@@ -94,27 +93,27 @@ router.post('/listings', upload.array('images', 5), async (req, res) => {
         }
       });
     } catch (error) {
-      await conn.rollback();
+     
       console.error('Error creating listing:', error);
       res.status(500).json({
         success: false,
         message: 'Failed to create listing',
         error: error.message
       });
-    } finally {
-      conn.release();
-    }
+    } 
   });
   
   // Get all listings
   router.get('/listings', async (req, res) => {
     try {
+      console.log('rows', res);
       const [rows] = await db.promise().query(`
         SELECT gl.*, 
           (SELECT image_url FROM gemstone_images gi WHERE gi.gemstone_id = gl.id AND gi.is_primary = 1 LIMIT 1) as primary_image 
         FROM gemstone_listings gl
         ORDER BY gl.created_at DESC
       `);
+      console.log('rows', rows);
       
       res.json({
         success: true,
@@ -134,7 +133,7 @@ router.post('/listings', upload.array('images', 5), async (req, res) => {
   router.get('/listings/:id', async (req, res) => {
     try {
       const [listing] = await db.promise().query(`
-        SELECT * FROM gemstone_listings WHERE id = ?
+        SELECT * FROM gemstone_listings WHERE user_id = ?
       `, [req.params.id]);
       
       if (listing.length === 0) {

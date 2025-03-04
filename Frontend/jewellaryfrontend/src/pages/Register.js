@@ -213,14 +213,15 @@ const Register = () => {
             </div>
             {errors.agreeTerms && <div className="error-message">{errors.agreeTerms}</div>}
           </div>
-
+          <div className="button-container">
           <button
             type="submit"
-            className={`btn btn-primary btn-block ${isLoading ? "loading" : ""}`}
+            className={`get-started ${isLoading ? "loading" : ""}`}
             disabled={isLoading}
           >
             {isLoading ? "Creating Account..." : "Create Account"}
           </button>
+          </div>
         </form>
 
         <div className="auth-divider">

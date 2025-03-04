@@ -211,7 +211,7 @@ const handleSubmit = async (e) => {
                     <option value="Ruby">Ruby</option>
                     <option value="Emerald">Emerald</option>
                     <option value="Diamond">Diamond</option>
-                    <option value="Other">Other</option>
+                    <option value="Other">Alexandrite</option>
                   </select>
                   {errors.type && <div className="error-message">{errors.type}</div>}
                 </div>
@@ -419,7 +419,7 @@ const handleSubmit = async (e) => {
           </div>
 
           <div className="form-actions">
-            <button type="submit" className={`btn btn-primary ${isLoading ? "loading" : ""}`}>
+            <button type="submit" className={`get-started ${isLoading ? "loading" : ""}`}>
               {isLoading ? "Creating Listing..." : "Create Listing"}
             </button>
             <button type="button" className="btn btn-outline" onClick={() => navigate("/dashboard")}>

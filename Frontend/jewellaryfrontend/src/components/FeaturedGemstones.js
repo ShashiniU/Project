@@ -1,5 +1,7 @@
 import { Link } from "react-router-dom"
 import "./FeaturedGemstones.css"
+import "../pages/ListingsPage.css"
+
 
 // Mock data for featured gemstones
 const featuredGems = [
@@ -42,6 +44,12 @@ const featuredGems = [
 ]
 
 const FeaturedGemstones = () => {
+  const handleBuyNowClick = (event) => {
+    if (!isLoggedIn) {
+      event.preventDefault(); // Prevent navigation
+      alert("You need to log in to proceed with the purchase.");
+    }
+  };
   return (
     <div className="featured-gemstones">
       <div className="gemstone-grid">
@@ -57,12 +65,16 @@ const FeaturedGemstones = () => {
                 <span className="gemstone-rating">★ {gem.rating}</span>
               </div>
               <div className="gemstone-actions">
-                <Link to={`/gemstone/${gem.id}`} className="btn btn-primary gemstone-btn">
+                <Link to={`/gemstone/${gem.id}`} className="view-details">
                   View Details
                 </Link>
-                <Link to={`/checkout/${gem.id}`} className="btn btn-secondary gemstone-btn">
-                  Buy Now
-                </Link>
+                <Link 
+      to={`/checkout/${gem.id}`} 
+      className="buy-now" 
+      onClick={handleBuyNowClick}
+    >
+      Buy Now
+    </Link>
               </div>
             </div>
           </div>

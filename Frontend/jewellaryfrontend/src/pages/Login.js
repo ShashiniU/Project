@@ -151,7 +151,7 @@ const Login = ({ onLogin })=> {
 
           <button
             type="submit"
-            className={`btn btn-primary btn-block ${isLoading ? "loading" : ""}`}
+            className={`get-started btn-block ${isLoading ? "loading" : ""}`}
             disabled={isLoading}
           >
             {isLoading ? "Signing in..." : "Sign In"}

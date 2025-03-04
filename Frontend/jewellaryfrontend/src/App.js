@@ -120,9 +120,9 @@ function App() {
       <Header isLoggedIn={isLoggedIn} onLogout={handleLogout} />
       <main className="main-content">
       <Routes>
-      <Route path="/" element={<HomePage />} />
-      <Route path="/listings" element={<ListingsPage />} />
-      <Route path="/gemstone/:id" element={<GemstoneDetail />} />
+      <Route path="/" element={<HomePage isLoggedIn={isLoggedIn}  />} />
+      <Route path="/listings" element={<ListingsPage isLoggedIn={isLoggedIn} />} />
+      <Route path="/gemstone/:id" element={<GemstoneDetail isLoggedIn={isLoggedIn} />} />
       <Route path="/login" element={<Login onLogin={handleLogin} />} />
       <Route path="/register" element={<Register onLogin={handleLogin} />} />
       <Route path="/dashboard" element={<Dashboard isLoggedIn={isLoggedIn} />} />
