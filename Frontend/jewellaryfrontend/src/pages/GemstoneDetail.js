@@ -160,6 +160,10 @@ const GemstoneDetail = ({isLoggedIn }) => {
               <span className="spec-label">Treatment:</span>
               <span className="spec-value">{gemstone.treatment}</span>
             </div>
+            <div className="spec-item">
+              <span className="spec-label">Certificate Number:</span>
+              <span className="spec-value">{gemstone.certification_number}</span>
+            </div>
           </div>
 
           <div className="purchase-options">
@@ -194,7 +198,7 @@ const GemstoneDetail = ({isLoggedIn }) => {
     >
       Buy Now
     </Link>
-              <button className="btn btn-secondary btn-lg">Add to Cart</button>
+              <button className="view-details btn-lg">Add to Cart</button>
               <button className="btn btn-outline btn-icon">
                 <FaHeart  />
               </button>
@@ -230,6 +234,18 @@ const GemstoneDetail = ({isLoggedIn }) => {
         </div>
       </div>
 
+      <div className="verify-gemstone">
+      <a 
+      href="http://gemlab-certificate.ngja.gov.lk/" 
+      target="_blank" 
+      rel="noopener noreferrer"
+      >
+      <button className="verify-btn">Verify Gemstone</button>
+      </a>
+      </div>
+
+
+
       <div className="detail-tabs">
         <div className="tabs-container">
           <div className="tabs-header">
@@ -257,15 +273,7 @@ const GemstoneDetail = ({isLoggedIn }) => {
         </div>
       </div>
 
-      <div className="related-gemstones">
-        <h2>You May Also Like</h2>
-        <div className="related-grid">
-          {/* Related gemstones would be mapped here */}
-          <div className="related-placeholder">
-            <p>Related gemstones would appear here</p>
-          </div>
-        </div>
-      </div>
+     
     </div>
   )
 }

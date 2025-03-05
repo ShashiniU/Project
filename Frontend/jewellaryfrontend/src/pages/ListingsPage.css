@@ -161,6 +161,33 @@
   background-color: #E53935; /* Lighter Red */
 }
 
+.verify-gemstone {
+  text-align: right;
+  padding-right: 10px;
+  margin-top: 20px;
+}
+
+.verify-btn {
+  background-color: #007bff; /* Primary blue color */
+  color: white;
+  font-size: 16px;
+  font-weight: bold;
+  padding: 12px 24px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  text-transform: uppercase;
+}
+
+.verify-btn:hover {
+  background-color: #0056b3; /* Darker blue on hover */
+}
+
+.verify-btn:active {
+  background-color: #004494; /* Even darker on click */
+}
+
 
 /* Responsive */
 @media (max-width: 992px) {

@@ -156,7 +156,7 @@ const Dashboard = ({ isLoggedIn }) => {
                 </div>
               </div>
 
-              <div className="recent-activity">
+              {/* <div className="recent-activity">
                 <h2>Recent Activity</h2>
                 <div className="activity-list">
                   {mockPurchases.map((purchase) => (
@@ -172,7 +172,7 @@ const Dashboard = ({ isLoggedIn }) => {
                     </div>
                   ))}
                 </div>
-              </div>
+              </div> */}
             </div>
           )}
 
@@ -240,7 +240,7 @@ const Dashboard = ({ isLoggedIn }) => {
                       <Link to={`/gemstone/${item.id}`} className="view-details">
                         View Details
                       </Link>
-                      <button className="btn btn-outline">Remove</button>
+                      <button className="remove">Remove</button>
                     </div>
                   </div>
                 ))}
@@ -304,7 +304,7 @@ const Dashboard = ({ isLoggedIn }) => {
                         <span className="card-brand">Visa</span>
                         <span className="card-number">•••• •••• •••• 4242</span>
                       </div>
-                      <button type="button" className="btn btn-outline">
+                      <button type="button" className="remove">
                         Remove
                       </button>
                     </div>
