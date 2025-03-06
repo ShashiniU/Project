@@ -1,110 +1,11 @@
 "use client"
-
-import { useState } from "react"
+import { authService } from "../services/api"
+import { useState, useEffect } from "react"
 import { Link } from "react-router-dom"
 import "./ListingsPage.css"
+import "../components/FeaturedGemstones.css"
 
-// Mock data for gemstone listings
-const gemstoneListings = [
-  {
-    id: 1,
-    name: "Natural Blue Sapphire",
-    description: "Stunning 3.5 carat natural blue sapphire with excellent clarity and color.",
-    price: 4500,
-    image: "/placeholder.svg?height=300&width=300",
-    certification: "GIA Certified",
-    rating: 4.9,
-    type: "Sapphire",
-    carat: 3.5,
-    origin: "Sri Lanka",
-  },
-  {
-    id: 2,
-    name: "Colombian Emerald",
-    description: "Rare 2.7 carat Colombian emerald with vivid green color and minimal inclusions.",
-    price: 5200,
-    image: "/placeholder.svg?height=300&width=300",
-    certification: "AGL Certified",
-    rating: 4.8,
-    type: "Emerald",
-    carat: 2.7,
-    origin: "Colombia",
-  },
-  {
-    id: 3,
-    name: "Ruby from Burma",
-    description: "Exquisite 2.1 carat Burmese ruby with pigeon blood color and excellent cut.",
-    price: 6800,
-    image: "/placeholder.svg?height=300&width=300",
-    certification: "GRS Certified",
-    rating: 5.0,
-    type: "Ruby",
-    carat: 2.1,
-    origin: "Burma",
-  },
-  {
-    id: 4,
-    name: "Yellow Diamond",
-    description: "Brilliant 1.8 carat fancy yellow diamond with VS1 clarity and excellent cut.",
-    price: 12500,
-    image: "/placeholder.svg?height=300&width=300",
-    certification: "GIA Certified",
-    rating: 4.9,
-    type: "Diamond",
-    carat: 1.8,
-    origin: "South Africa",
-  },
-  {
-    id: 5,
-    name: "Tanzanite Gemstone",
-    description: "Beautiful 4.2 carat tanzanite with deep blue-violet color and excellent clarity.",
-    price: 3800,
-    image: "/placeholder.svg?height=300&width=300",
-    certification: "GIA Certified",
-    rating: 4.7,
-    type: "Tanzanite",
-    carat: 4.2,
-    origin: "Tanzania",
-  },
-  {
-    id: 6,
-    name: "Pink Tourmaline",
-    description: "Vibrant 3.8 carat pink tourmaline with excellent transparency and cut.",
-    price: 2200,
-    image: "/placeholder.svg?height=300&width=300",
-    certification: "IGI Certified",
-    rating: 4.6,
-    type: "Tourmaline",
-    carat: 3.8,
-    origin: "Brazil",
-  },
-  {
-    id: 7,
-    name: "Alexandrite Color Change",
-    description: "Rare 1.5 carat alexandrite with dramatic color change from green to purple.",
-    price: 15000,
-    image: "/placeholder.svg?height=300&width=300",
-    certification: "GIA Certified",
-    rating: 5.0,
-    type: "Alexandrite",
-    carat: 1.5,
-    origin: "Russia",
-  },
-  {
-    id: 8,
-    name: "Paraiba Tourmaline",
-    description: "Exceptional 1.2 carat Paraiba tourmaline with electric neon blue color.",
-    price: 18000,
-    image: "/placeholder.svg?height=300&width=300",
-    certification: "GIA Certified",
-    rating: 4.9,
-    type: "Tourmaline",
-    carat: 1.2,
-    origin: "Brazil",
-  },
-]
-
-const ListingsPage = () => {
+const ListingsPage = ({ isLoggedIn }) => {
   const [filters, setFilters] = useState({
     type: "",
     priceMin: "",
@@ -117,11 +18,35 @@ const ListingsPage = () => {
 
   const [searchTerm, setSearchTerm] = useState("")
   const [sortBy, setSortBy] = useState("featured")
+  const [allListings, setAllListings] = useState([]) // Initialize as empty array
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState(null)
 
-  // Get unique values for filter dropdowns
-  const gemTypes = [...new Set(gemstoneListings.map((gem) => gem.type))]
-  const origins = [...new Set(gemstoneListings.map((gem) => gem.origin))]
-  const certifications = [...new Set(gemstoneListings.map((gem) => gem.certification))]
+  useEffect(() => {
+    const fetchListings = async () => {
+      setIsLoading(true)
+      try {
+        const res = await authService.alllisting()
+        setAllListings(res.data || []) // Ensure we set as empty array if res.data is undefined
+      
+        localStorage.setItem("Items", JSON.stringify(res.data));
+        setError(null)
+      } catch (error) {
+        console.error("Error fetching listings:", error)
+        setError("Failed to load listings. Please try again later.")
+        setAllListings([]) // Set to empty array on error
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    fetchListings()
+  }, [])
+
+  // Only compute these values when allListings has data
+  const gemTypes = allListings ? [...new Set(allListings.map((gem) => gem.type))].filter(Boolean) : []
+  const origins = allListings ? [...new Set(allListings.map((gem) => gem.origin))].filter(Boolean) : []
+  const certifications = allListings ? [...new Set(allListings.map((gem) => gem.certification))].filter(Boolean) : []
 
   const handleFilterChange = (e) => {
     const { name, value } = e.target
@@ -139,36 +64,38 @@ const ListingsPage = () => {
     setSortBy(e.target.value)
   }
 
-  // Filter gemstones based on filters and search
-  const filteredGemstones = gemstoneListings.filter((gem) => {
-    // Filter by type
-    if (filters.type && gem.type !== filters.type) return false
+  // Handle case where allListings is still undefined or null
+  const filteredGemstones = allListings
+    ? allListings.filter((gem) => {
+        // Filter by type
+        if (filters.type && gem.type !== filters.type) return false
 
-    // Filter by price range
-    if (filters.priceMin && gem.price < Number.parseInt(filters.priceMin)) return false
-    if (filters.priceMax && gem.price > Number.parseInt(filters.priceMax)) return false
+        // Filter by price range
+        if (filters.priceMin && gem.price < Number.parseInt(filters.priceMin)) return false
+        if (filters.priceMax && gem.price > Number.parseInt(filters.priceMax)) return false
 
-    // Filter by carat range
-    if (filters.caratMin && gem.carat < Number.parseFloat(filters.caratMin)) return false
-    if (filters.caratMax && gem.carat > Number.parseFloat(filters.caratMax)) return false
+        // Filter by carat range
+        if (filters.caratMin && gem.carat < Number.parseFloat(filters.caratMin)) return false
+        if (filters.caratMax && gem.carat > Number.parseFloat(filters.caratMax)) return false
 
-    // Filter by origin
-    if (filters.origin && gem.origin !== filters.origin) return false
+        // Filter by origin
+        if (filters.origin && gem.origin !== filters.origin) return false
 
-    // Filter by certification
-    if (filters.certification && gem.certification !== filters.certification) return false
+        // Filter by certification
+        if (filters.certification && gem.certification !== filters.certification) return false
 
-    // Filter by search term
-    if (
-      searchTerm &&
-      !gem.name.toLowerCase().includes(searchTerm.toLowerCase()) &&
-      !gem.description.toLowerCase().includes(searchTerm.toLowerCase())
-    ) {
-      return false
-    }
+        // Filter by search term
+        if (
+          searchTerm &&
+          !gem.name.toLowerCase().includes(searchTerm.toLowerCase()) &&
+          !gem.description.toLowerCase().includes(searchTerm.toLowerCase())
+        ) {
+          return false
+        }
 
-    return true
-  })
+        return true
+      })
+    : []
 
   // Sort gemstones
   const sortedGemstones = [...filteredGemstones].sort((a, b) => {
@@ -186,6 +113,35 @@ const ListingsPage = () => {
     }
   })
 
+  // Show loading state while fetching data
+  if (isLoading) {
+    return (
+      <div className="listings-page">
+        <div className="listings-header">
+          <h1>Gemstone Listings</h1>
+          <p>Loading gemstones...</p>
+        </div>
+      </div>
+    )
+  }
+
+  // Show error state if there was an error
+  if (error) {
+    return (
+      <div className="listings-page">
+        <div className="listings-header">
+          <h1>Gemstone Listings</h1>
+          <p className="error-message">{error}</p>
+        </div>
+      </div>
+    )
+  }
+  const handleBuyNowClick = (event) => {
+    if (!isLoggedIn) {
+      event.preventDefault(); // Prevent navigation
+      alert("You need to log in to proceed with the purchase.");
+    }
+  };
   return (
     <div className="listings-page">
       <div className="listings-header">
@@ -296,7 +252,7 @@ const ListingsPage = () => {
           </div>
 
           <button
-            className="btn btn-primary reset-btn"
+            className="get-started reset-btn"
             onClick={() => {
               setFilters({
                 type: "",
@@ -334,7 +290,7 @@ const ListingsPage = () => {
               sortedGemstones.map((gem) => (
                 <div className="gemstone-card" key={gem.id}>
                   <div className="gemstone-badge">{gem.certification}</div>
-                  <img src={gem.image || "/placeholder.svg"} alt={gem.name} className="gemstone-img" />
+                  <img src={`http://localhost:5000${gem.primary_image}` || "/placeholder.svg"} alt={gem.name} className="gemstone-img" />
                   <div className="gemstone-content">
                     <h3 className="gemstone-name">{gem.name}</h3>
                     <div className="gemstone-specs">
@@ -344,16 +300,20 @@ const ListingsPage = () => {
                     </div>
                     <p className="gemstone-description">{gem.description}</p>
                     <div className="gemstone-details">
-                      <span className="gemstone-price">${gem.price.toLocaleString()}</span>
+                      <span className="gemstone-price">${gem.price?.toLocaleString() || 'N/A'}</span>
                       <span className="gemstone-rating">★ {gem.rating}</span>
                     </div>
                     <div className="gemstone-actions">
-                      <Link to={`/gemstone/${gem.id}`} className="btn btn-primary gemstone-btn">
+                      <Link to={`/gemstone/${gem.id}`} className="view-details">
                         View Details
                       </Link>
-                      <Link to={`/checkout/${gem.id}`} className="btn btn-secondary gemstone-btn">
-                        Buy Now
-                      </Link>
+                      <Link 
+      to={`/checkout/${gem.id}`} 
+      className="buy-now" 
+      onClick={handleBuyNowClick}
+    >
+      Buy Now
+    </Link>
                     </div>
                   </div>
                 </div>
@@ -373,3 +333,101 @@ const ListingsPage = () => {
 
 export default ListingsPage
 
+// // const gemstoneListings = [
+// //   {
+// //     id: 1,
+// //     name: "Natural Blue Sapphire",
+// //     description: "Stunning 3.5 carat natural blue sapphire with excellent clarity and color.",
+// //     price: 4500,
+// //     image: "/placeholder.svg?height=300&width=300",
+// //     certification: "GIA Certified",
+// //     rating: 4.9,
+// //     type: "Sapphire",
+// //     carat: 3.5,
+// //     origin: "Sri Lanka",
+// //   },
+// //   {
+// //     id: 2,
+// //     name: "Colombian Emerald",
+// //     description: "Rare 2.7 carat Colombian emerald with vivid green color and minimal inclusions.",
+// //     price: 5200,
+// //     image: "/placeholder.svg?height=300&width=300",
+// //     certification: "AGL Certified",
+// //     rating: 4.8,
+// //     type: "Emerald",
+// //     carat: 2.7,
+// //     origin: "Colombia",
+// //   },
+// //   {
+// //     id: 3,
+// //     name: "Ruby from Burma",
+// //     description: "Exquisite 2.1 carat Burmese ruby with pigeon blood color and excellent cut.",
+// //     price: 6800,
+// //     image: "/placeholder.svg?height=300&width=300",
+// //     certification: "GRS Certified",
+// //     rating: 5.0,
+// //     type: "Ruby",
+// //     carat: 2.1,
+// //     origin: "Burma",
+// //   },
+// //   {
+// //     id: 4,
+// //     name: "Yellow Diamond",
+// //     description: "Brilliant 1.8 carat fancy yellow diamond with VS1 clarity and excellent cut.",
+// //     price: 12500,
+// //     image: "/placeholder.svg?height=300&width=300",
+// //     certification: "GIA Certified",
+// //     rating: 4.9,
+// //     type: "Diamond",
+// //     carat: 1.8,
+// //     origin: "South Africa",
+// //   },
+// //   {
+// //     id: 5,
+// //     name: "Tanzanite Gemstone",
+// //     description: "Beautiful 4.2 carat tanzanite with deep blue-violet color and excellent clarity.",
+// //     price: 3800,
+// //     image: "/placeholder.svg?height=300&width=300",
+// //     certification: "GIA Certified",
+// //     rating: 4.7,
+// //     type: "Tanzanite",
+// //     carat: 4.2,
+// //     origin: "Tanzania",
+// //   },
+// //   {
+// //     id: 6,
+// //     name: "Pink Tourmaline",
+// //     description: "Vibrant 3.8 carat pink tourmaline with excellent transparency and cut.",
+// //     price: 2200,
+// //     image: "/placeholder.svg?height=300&width=300",
+// //     certification: "IGI Certified",
+// //     rating: 4.6,
+// //     type: "Tourmaline",
+// //     carat: 3.8,
+// //     origin: "Brazil",
+// //   },
+// //   {
+// //     id: 7,
+// //     name: "Alexandrite Color Change",
+// //     description: "Rare 1.5 carat alexandrite with dramatic color change from green to purple.",
+// //     price: 15000,
+// //     image: "/placeholder.svg?height=300&width=300",
+// //     certification: "GIA Certified",
+// //     rating: 5.0,
+// //     type: "Alexandrite",
+// //     carat: 1.5,
+// //     origin: "Russia",
+// //   },
+// //   {
+// //     id: 8,
+// //     name: "Paraiba Tourmaline",
+// //     description: "Exceptional 1.2 carat Paraiba tourmaline with electric neon blue color.",
+// //     price: 18000,
+// //     image: "/placeholder.svg?height=300&width=300",
+// //     certification: "GIA Certified",
+// //     rating: 4.9,
+// //     type: "Tourmaline",
+// //     carat: 1.2,
+// //     origin: "Brazil",
+// //   },
+// // ]

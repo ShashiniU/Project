@@ -1,6 +1,5 @@
 const express = require("express");
 const db = require("../db"); // Database connection file
-// const { upload, uploadfile } = require("../middleware/upload");
 const path = require("path");
 const jwt = require("jsonwebtoken");
 
@@ -28,7 +27,7 @@ const authenticateToken = (req, res, next) => {
 // Example of a protected route
 router.get('/profile', authenticateToken, async (req, res) => {
   try {
-    const [users] = await pool.query('SELECT id, first_name, last_name, email FROM users WHERE id = ?', [req.user.userId]);
+    const [users] = await db.promise().query('SELECT id, first_name, last_name, email FROM users WHERE id = ?', [req.user.userId]);
     
     if (users.length === 0) {
       return res.status(404).json({ message: 'User not found' });

@@ -5,10 +5,12 @@
 }
 
 .footer-container {
+  background-color: rgba(0, 0, 0, 0.2);
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 40px;
   padding-bottom: 40px;
+  padding: 50px;
 }
 
 .footer-title {
@@ -40,10 +42,11 @@
 .footer-links li,
 .footer-contact li {
   margin-bottom: 10px;
+ 
 }
 
 .footer-links a {
-  color: white;
+  color: rgb(2, 2, 2);
   text-decoration: none;
   opacity: 0.8;
   transition: var(--transition);
@@ -67,7 +70,7 @@
 }
 
 .footer-button {
-  background-color: var(--accent-color);
+  background-color: #3d3d3d;
   color: white;
   border: none;
   padding: 10px 15px;

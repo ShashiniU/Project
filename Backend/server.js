@@ -7,6 +7,7 @@ const mysql = require("mysql2");
 const path = require("path");
 const userRoutes = require("./routes/user");  
 const authRoutes = require("./routes/auth");  
+const listingRoutes = require("./routes/listings");  
 
 const app = express();
 app.use(cors());
@@ -18,6 +19,7 @@ app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 app.use("/api/user", userRoutes); 
 app.use("/api/auth", authRoutes); 
+app.use("/api/listing", listingRoutes); 
 
 app.get("/", (req, res) => {
     res.send("Gem Store Platform API is running...");
@@ -68,33 +70,6 @@ db.connect(err => {
 });
 // Middleware
 app.use(express.json());
-
-
-
-
-//jobs
-app.get("/api/jobs", (req, res) => {
-    db.query("SELECT * FROM jobs", (err, result) => {
-      if (err) return res.status(500).json(err);
-      res.json(result);
-    });
-  });
-
-  // Add this route in server.js
-app.post("/api/jobs", (req, res) => {
-  const { title, company, location, description, skills_required, email, closing_date } = req.body;
-
-  const query = "INSERT INTO jobs (title, company, location, description, skills_required, email, closing_date) VALUES (?, ?, ?, ?, ?, ?, ?)";
-  db.query(query, [title, company, location, description, skills_required, email, closing_date], (err, result) => {
-      if (err) {
-          console.error("Error inserting job:", err);
-          return res.status(500).json({ error: "Failed to add job" });
-      }
-      res.status(201).json({ message: "Job added successfully", jobId: result.insertId });
-  });
-});
-
-
 
 
 

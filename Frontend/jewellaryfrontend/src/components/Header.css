@@ -54,15 +54,17 @@
 }
 
 .mobile-toggle {
+ 
   display: none;
   flex-direction: column;
   cursor: pointer;
 }
 
 .mobile-toggle span {
+  
   width: 25px;
   height: 3px;
-  background-color: var(--primary-color);
+  background-color:black;
   margin: 3px 0;
   transition: var(--transition);
 }
@@ -96,6 +98,7 @@
   .nav-item {
     margin: 10px 0;
     width: 100%;
+    
   }
 
   .nav-link {

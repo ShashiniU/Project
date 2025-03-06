@@ -1,8 +1,12 @@
 "use client"
 
-import { useState } from "react"
+import { useState , useEffect} from "react"
 import { useNavigate, Link } from "react-router-dom"
 import "./Dashboard.css"
+import { authService } from "../services/api"
+import "./ListingsPage.css"
+
+
 
 // Mock data for the dashboard
 const mockPurchases = [
@@ -20,29 +24,6 @@ const mockPurchases = [
     date: "2024-01-28",
     price: 5200,
     status: "In Transit",
-    image: "/placeholder.svg?height=80&width=80",
-  },
-]
-
-const mockListings = [
-  {
-    id: 1,
-    name: "Ruby from Burma",
-    date: "2024-02-10",
-    price: 6800,
-    status: "Active",
-    views: 245,
-    favorites: 12,
-    image: "/placeholder.svg?height=80&width=80",
-  },
-  {
-    id: 2,
-    name: "Yellow Diamond",
-    date: "2024-02-05",
-    price: 12500,
-    status: "Sold",
-    views: 189,
-    favorites: 8,
     image: "/placeholder.svg?height=80&width=80",
   },
 ]
@@ -69,17 +50,36 @@ const mockSavedItems = [
 const Dashboard = ({ isLoggedIn }) => {
   const navigate = useNavigate()
   const [activeTab, setActiveTab] = useState("overview")
+  const savedUser = JSON.parse(localStorage.getItem("user"));
+  const [myListings, setMyListings] = useState()
 
-  if (!isLoggedIn) {
-    navigate("/login")
-    return null
-  }
+  useEffect(() => {
+    if (!isLoggedIn) {
+      navigate("/login");
+      return; // Return early from the useEffect if not logged in
+    }
+
+    // Fetch listings only if logged in
+    const fetchListings = async () => {
+      try {
+        const res = await authService.mylisting({ userid: savedUser.id });
+        setMyListings(res.data);
+      } catch (error) {
+        console.error("Error fetching listings:", error);
+      }
+    };
+
+    fetchListings(); // Call the async function
+  }, [isLoggedIn, savedUser?.id, navigate]); 
+  
+  
+
 
   return (
     <div className="dashboard-page">
       <div className="dashboard-header">
         <h1>My Dashboard</h1>
-        <Link to="/create-listing" className="btn btn-primary">
+        <Link to="/create-listing" className="get-started">
           Create New Listing
         </Link>
       </div>
@@ -88,10 +88,10 @@ const Dashboard = ({ isLoggedIn }) => {
         <div className="dashboard-sidebar">
           <div className="user-profile">
             <div className="profile-image">
-              <img src="/placeholder.svg?height=100&width=100" alt="User Profile" />
+              <img src= "/placeholder.svg?height=100&width=100" alt="User Profile" />
             </div>
             <div className="profile-info">
-              <h3>John Doe</h3>
+              <h3>{savedUser.firstName+' '+savedUser.lastName}</h3>
               <p>Member since Jan 2024</p>
             </div>
           </div>
@@ -156,12 +156,12 @@ const Dashboard = ({ isLoggedIn }) => {
                 </div>
               </div>
 
-              <div className="recent-activity">
+              {/* <div className="recent-activity">
                 <h2>Recent Activity</h2>
                 <div className="activity-list">
                   {mockPurchases.map((purchase) => (
                     <div key={purchase.id} className="activity-item">
-                      <img src={purchase.image || "/placeholder.svg"} alt={purchase.name} className="activity-image" />
+                      <img src={`http://localhost:5000${purchase.primary_image}` || "/placeholder.svg"} alt={purchase.name} className="activity-image" />
                       <div className="activity-details">
                         <h3>{purchase.name}</h3>
                         <p>
@@ -172,7 +172,7 @@ const Dashboard = ({ isLoggedIn }) => {
                     </div>
                   ))}
                 </div>
-              </div>
+              </div> */}
             </div>
           )}
 
@@ -200,9 +200,9 @@ const Dashboard = ({ isLoggedIn }) => {
             <div className="listings-section">
               <h2>My Listings</h2>
               <div className="listings-list">
-                {mockListings.map((listing) => (
+                {myListings.map((listing) => (
                   <div key={listing.id} className="listing-item">
-                    <img src={listing.image || "/placeholder.svg"} alt={listing.name} />
+                    <img src={`http://localhost:5000${listing.primary_image}` || "/placeholder.svg"} alt={listing.name} />
                     <div className="listing-details">
                       <h3>{listing.name}</h3>
                       <p>Listed on {new Date(listing.date).toLocaleDateString()}</p>
@@ -237,10 +237,10 @@ const Dashboard = ({ isLoggedIn }) => {
                     </div>
                     <div className="saved-price">${item.price.toLocaleString()}</div>
                     <div className="saved-actions">
-                      <Link to={`/gemstone/${item.id}`} className="btn btn-primary">
+                      <Link to={`/gemstone/${item.id}`} className="view-details">
                         View Details
                       </Link>
-                      <button className="btn btn-outline">Remove</button>
+                      <button className="remove">Remove</button>
                     </div>
                   </div>
                 ))}
@@ -257,16 +257,16 @@ const Dashboard = ({ isLoggedIn }) => {
                   <div className="form-row">
                     <div className="form-group">
                       <label>First Name</label>
-                      <input type="text" className="form-control" defaultValue="John" />
+                      <input type="text" className="form-control" defaultValue={savedUser.firstName} />
                     </div>
                     <div className="form-group">
                       <label>Last Name</label>
-                      <input type="text" className="form-control" defaultValue="Doe" />
+                      <input type="text" className="form-control" defaultValue={savedUser.lastName} />
                     </div>
                   </div>
                   <div className="form-group">
                     <label>Email</label>
-                    <input type="email" className="form-control" defaultValue="john@example.com" />
+                    <input type="email" className="form-control" defaultValue={savedUser.email} />
                   </div>
                   <div className="form-group">
                     <label>Phone</label>
@@ -304,7 +304,7 @@ const Dashboard = ({ isLoggedIn }) => {
                         <span className="card-brand">Visa</span>
                         <span className="card-number">•••• •••• •••• 4242</span>
                       </div>
-                      <button type="button" className="btn btn-outline">
+                      <button type="button" className="remove">
                         Remove
                       </button>
                     </div>
@@ -315,7 +315,7 @@ const Dashboard = ({ isLoggedIn }) => {
                 </div>
 
                 <div className="form-actions">
-                  <button type="submit" className="btn btn-primary">
+                  <button type="submit" className="get-started">
                     Save Changes
                   </button>
                   <button type="button" className="btn btn-outline">

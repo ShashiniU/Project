@@ -2,9 +2,10 @@
 
 import { useState } from "react"
 import { Link, useNavigate } from "react-router-dom"
+import { authService } from "../services/api"
 import "./AuthPages.css"
 
-const Register = ({ onLogin }) => {
+const Register = () => {
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -16,6 +17,7 @@ const Register = ({ onLogin }) => {
 
   const [errors, setErrors] = useState({})
   const [isLoading, setIsLoading] = useState(false)
+  const [serverError, setServerError] = useState("")
 
   const navigate = useNavigate()
 
@@ -32,6 +34,11 @@ const Register = ({ onLogin }) => {
         ...errors,
         [name]: "",
       })
+    }
+    
+    // Clear server error when user changes input
+    if (serverError) {
+      setServerError("")
     }
   }
 
@@ -72,18 +79,37 @@ const Register = ({ onLogin }) => {
     return Object.keys(newErrors).length === 0
   }
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
 
     if (validateForm()) {
       setIsLoading(true)
-
-      // Simulate API call
-      setTimeout(() => {
-        setIsLoading(false)
-        onLogin()
+      setServerError("")
+      
+      try {
+        // Register the user through the API
+        await authService.register({
+          firstName: formData.firstName,
+          lastName: formData.lastName,
+          email: formData.email,
+          password: formData.password
+        })
+        
         navigate("/dashboard")
-      }, 1500)
+      } catch (error) {
+        if (error.response) {
+          // Server responded with an error
+          setServerError(error.response.data.message || "Registration failed. Please try again.")
+        } else if (error.request) {
+          // No response from server
+          setServerError("No response from server. Please check your connection.")
+        } else {
+          // Other error
+          setServerError("Registration failed. Please try again.")
+        }
+      } finally {
+        setIsLoading(false)
+      }
     }
   }
 
@@ -94,6 +120,10 @@ const Register = ({ onLogin }) => {
           <h1>Create an Account</h1>
           <p>Join the premier gemstone marketplace</p>
         </div>
+
+        {serverError && (
+          <div className="server-error-message">{serverError}</div>
+        )}
 
         <form className="auth-form" onSubmit={handleSubmit}>
           <div className="form-row">
@@ -183,14 +213,15 @@ const Register = ({ onLogin }) => {
             </div>
             {errors.agreeTerms && <div className="error-message">{errors.agreeTerms}</div>}
           </div>
-
+          <div className="button-container">
           <button
             type="submit"
-            className={`btn btn-primary btn-block ${isLoading ? "loading" : ""}`}
+            className={`get-started ${isLoading ? "loading" : ""}`}
             disabled={isLoading}
           >
             {isLoading ? "Creating Account..." : "Create Account"}
           </button>
+          </div>
         </form>
 
         <div className="auth-divider">
@@ -219,4 +250,3 @@ const Register = ({ onLogin }) => {
 }
 
 export default Register
-

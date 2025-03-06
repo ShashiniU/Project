@@ -5,37 +5,23 @@ import { useParams, useNavigate } from "react-router-dom"
 import "./Checkout.css"
 
 // Mock data for the selected gemstone
-const gemstoneData = {
-  1: {
-    id: 1,
-    name: "Natural Blue Sapphire",
-    price: 4500,
-    image: "/placeholder.svg?height=100&width=100",
-    certification: "GIA Certified",
-  },
-}
+// const gemstoneData = {
+//   6: {
+//     id: 1,
+//     name: "Natural Blue Sapphire",
+//     price: 4500,
+//     image: "/placeholder.svg?height=100&width=100",
+//     certification: "GIA Certified",
+//   },
+// }
 
 const Checkout = ({ isLoggedIn }) => {
   const { id } = useParams()
   const navigate = useNavigate()
-  const gemstone = gemstoneData[id]
+  const gemstoneData = JSON.parse(localStorage.getItem("Items")) || {}
+  const gemstone = gemstoneData.find(gem => gem.id === Number(id)) || {}
 
-  const [formData, setFormData] = useState({
-    firstName: "",
-    lastName: "",
-    email: "",
-    phone: "",
-    address: "",
-    city: "",
-    state: "",
-    zipCode: "",
-    country: "USA",
-    paymentMethod: "credit",
-    cardNumber: "",
-    expiryDate: "",
-    cvv: "",
-    agreeTerms: false,
-  })
+  const [formData, setFormData] = useState( JSON.parse(localStorage.getItem("user")))
 
   const [isLoading, setIsLoading] = useState(false)
   const [errors, setErrors] = useState({})
@@ -341,7 +327,7 @@ const Checkout = ({ isLoggedIn }) => {
                 {errors.agreeTerms && <div className="error-message">{errors.agreeTerms}</div>}
               </div>
 
-              <button type="submit" className={`btn btn-primary btn-block ${isLoading ? "loading" : ""}`}>
+              <button type="submit" className={`get-started btn-block ${isLoading ? "loading" : ""}`}>
                 {isLoading ? "Processing..." : "Complete Purchase"}
               </button>
             </form>
@@ -351,7 +337,7 @@ const Checkout = ({ isLoggedIn }) => {
             <div className="summary-card">
               <h2>Order Summary</h2>
               <div className="gemstone-summary">
-                <img src={gemstone.image || "/placeholder.svg"} alt={gemstone.name} className="gemstone-thumbnail" />
+                <img src={`http://localhost:5000${gemstone.primary_image}`} alt={gemstone.name} className="gemstone-thumbnail" />
                 <div className="gemstone-info">
                   <h3>{gemstone.name}</h3>
                   <p className="certification">{gemstone.certification}</p>

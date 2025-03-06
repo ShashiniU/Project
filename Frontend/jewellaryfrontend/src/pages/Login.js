@@ -5,7 +5,7 @@ import { Link, useNavigate } from "react-router-dom"
 import { authService } from "../services/api"
 import "./AuthPages.css"
 
-const Login = () => {
+const Login = ({ onLogin })=> {
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -39,6 +39,8 @@ const Login = () => {
     }
   }
 
+  
+
   const validateForm = () => {
     const newErrors = {}
 
@@ -56,6 +58,8 @@ const Login = () => {
     return Object.keys(newErrors).length === 0
   }
 
+
+ 
   const handleSubmit = async (e) => {
     e.preventDefault()
 
@@ -64,7 +68,11 @@ const Login = () => {
       setServerError("")
       
       try {
-        await authService.login(formData.email, formData.password)
+        const response = await authService.login(formData.email, formData.password)
+        setIsLoading(false)
+        localStorage.setItem("user", JSON.stringify(response.user)); // Save user
+        console.log('jsondata',JSON.stringify(response.user));
+        onLogin()
         navigate("/dashboard")
       } catch (error) {
         if (error.response) {
@@ -82,6 +90,7 @@ const Login = () => {
       }
     }
   }
+
 
   return (
     <div className="auth-page">
@@ -142,7 +151,7 @@ const Login = () => {
 
           <button
             type="submit"
-            className={`btn btn-primary btn-block ${isLoading ? "loading" : ""}`}
+            className={`get-started btn-block ${isLoading ? "loading" : ""}`}
             disabled={isLoading}
           >
             {isLoading ? "Signing in..." : "Sign In"}
